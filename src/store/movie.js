@@ -24,20 +24,19 @@ export const searchMovies = async (page) => {
     store.state.message = "";
   }
   try {
-    const res = await fetch(
-      `https://www.omdbapi.com/?apikey=7035c60c&s=${store.state.searchText}&page=${page}`
-    );
-    const { Search, totalResults, Response, Error } = await res.json();
+    const res = await fetch("/api/movie", {
+      method: "POST",
+      body: JSON.stringify({
+        title: store.state.searchText,
+        page,
+      }),
+    });
+    const { Response, Search, totalResults, Error } = await res.json();
     if (Response === "True") {
-      // console.log(Search); //[{…}, {…}, {…}]
-      //...Search는 검색한 내용, 누적해서 업데이트하기위해 앞에 또써줌
       store.state.movies = [...store.state.movies, ...Search];
-
-      //pageMax
       store.state.pageMax = Math.ceil(Number(totalResults) / 10);
     } else {
       store.state.message = Error;
-      //상태 초기화
       store.state.pageMax = 1;
     }
   } catch (error) {
@@ -50,9 +49,10 @@ export const searchMovies = async (page) => {
 //상세정보 얻어오기 (#MOVIE)
 export const getMovieDetails = async (id) => {
   try {
-    const res = await fetch(
-      `https://www.omdbapi.com/?apikey=7035c60c&i=${id}&plot=full`
-    );
+    const res = await fetch("/api/movie", {
+      method: "POST",
+      body: JSON.stringify({ id }),
+    });
     store.state.movie = await res.json();
   } catch (error) {
     console.log("getMovieDetails error:", error);
